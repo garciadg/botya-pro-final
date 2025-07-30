@@ -2,13 +2,79 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>BotYa Paraguay PRO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BotYa Paraguay</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 0.3em;
+      color: #222;
+    }
+
+    p {
+      font-size: 1.2em;
+      margin-bottom: 2em;
+    }
+
+    .botones a {
+      display: inline-block;
+      margin: 10px;
+      padding: 15px 25px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1em;
+      transition: 0.3s;
+    }
+
+    .whatsapp {
+      background: #25D366;
+      color: white;
+    }
+
+    .mercado {
+      background: #0077ff;
+      color: white;
+    }
+
+    .paypal {
+      background: #ffc439;
+      color: #111;
+    }
+
+    .botones a:hover {
+      opacity: 0.8;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2em;
+      }
+
+      .botones a {
+        width: 90%;
+        display: block;
+        margin: 10px auto;
+      }
+    }
+  </style>
 </head>
 <body>
   <h1>🤖 BotYa Paraguay</h1>
   <p>Activá tu bot de atención automática ahora mismo.</p>
-  <a href="https://wa.me/595994882364" target="_blank">📲 Consultar por WhatsApp</a><br><br>
-  <a href="https://mpago.la/yourlink" target="_blank">💳 Pagar con MercadoPago</a><br><br>
-  <a href="https://www.paypal.com/pay?hosted_button_id=XXXXXXX" target="_blank">💰 Pagar con PayPal</a>
+
+  <div class="botones">
+    <a class="whatsapp" href="https://wa.me/595994882364" target="_blank">💬 Consultar por WhatsApp</a>
+    <a class="mercado" href="https://mpago.la/yourlink" target="_blank">💳 Pagar con MercadoPago</a>
+    <a class="paypal" href="https://www.paypal.com/pay?hosted_button_id=XXXXXXX" target="_blank">💰 Pagar con PayPal</a>
+  </div>
 </body>
 </html>
