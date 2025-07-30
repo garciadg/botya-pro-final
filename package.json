@@ -1,0 +1,15 @@
+{
+  "name": "botya-pro-definitivo",
+  "version": "1.0.0",
+  "description": "Sistema comercial de activación automática con QR dinámico y GPT.",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js 59594882364-1234567890"
+  },
+  "author": "dgproductora",
+  "license": "MIT",
+  "dependencies": {
+    "qrcode": "^1.5.0",
+    "express": "^4.18.2"
+  }
+}
