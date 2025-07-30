@@ -1,33 +1,49 @@
-const fs = require('fs');
-const path = require('path');
-const qrcode = require('qrcode');
+const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require("@whiskeysockets/baileys");
+const { Boom } = require("@hapi/boom");
+const fs = require("fs");
 
-function logEvento(msg) {
-  const linea = `[${new Date().toLocaleString()}] ${msg}\n`;
-  fs.appendFileSync('log.txt', linea);
+const { state, saveState } = useSingleFileAuthState("./session.json");
+
+async function startBot() {
+  const sock = makeWASocket({
+    auth: state,
+    printQRInTerminal: true,
+    browser: ["BotYa Paraguay", "Chrome", "1.0.0"]
+  });
+
+  sock.ev.on("creds.update", saveState);
+
+  sock.ev.on("connection.update", (update) => {
+    const { connection, lastDisconnect } = update;
+    if (connection === "close") {
+      const shouldReconnect = (lastDisconnect.error = Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
+      console.log("⛔ Conexión cerrada. Reconectando...", shouldReconnect);
+      if (shouldReconnect) {
+        startBot();
+      }
+    } else if (connection === "open") {
+      console.log("🟢 BotYa conectado a WhatsApp");
+    }
+  });
+
+  sock.ev.on("messages.upsert", async (msg) => {
+    const m = msg.messages[0];
+    if (!m.message || m.key.fromMe) return;
+
+    const from = m.key.remoteJid;
+    const texto = m.message.conversation || m.message.extendedTextMessage?.text;
+
+    if (texto) {
+      console.log(`📩 Mensaje recibido de ${from}: ${texto}`);
+
+      const respuesta = `🤖 Hola, soy BotYa Paraguay. ¿En qué puedo ayudarte?\n` +
+                        `1️⃣ Activar mi bot\n` +
+                        `2️⃣ Precios y planes\n` +
+                        `3️⃣ Hablar con un humano`;
+
+      await sock.sendMessage(from, { text: respuesta });
+    }
+  });
 }
 
-const licencia = process.argv[2];
-if (!licencia) {
-  logEvento("❌ Licencia no proporcionada.");
-  process.exit(1);
-}
-
-const clienteId = licencia.split('-')[0];
-const clientePath = path.join(__dirname, 'clientes', `${clienteId}.json`);
-
-if (!fs.existsSync(clientePath)) {
-  logEvento(`❌ Cliente no encontrado: ${clienteId}`);
-  process.exit(1);
-}
-
-const qrPath = path.join(__dirname, 'clientes', `${clienteId}_qr.png`);
-qrcode.toFile(qrPath, licencia, err => {
-  if (err) {
-    logEvento(`❌ Error al generar QR: ${err.message}`);
-    process.exit(1);
-  } else {
-    logEvento(`✅ QR generado correctamente para ${clienteId}`);
-    logEvento(`🤖 GPT respuesta simulada: ¡Hola! ¿Cómo puedo ayudarte hoy?`);
-  }
-});
+startBot();
