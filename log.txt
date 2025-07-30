@@ -1,0 +1,4 @@
+[LOG] Sistema iniciado - BotYa Paraguay PRO[2025-07-30T16:44:59.397Z] Activado +59594882364 (Amalio)
+[2025-07-30T16:44:59.613Z] ✅ QR generado
+[2025-07-30T16:44:59.614Z] 🤖 GPT respuesta: ¡Hola, cómo puedo ayudarte hoy?
+[2025-07-30T16:44:59.620Z] Bot finalizado para 59594882364
