@@ -7,10 +7,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(__dirname));
 
+// Página principal
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "landing.html"));
 });
 
+// Guardar datos del formulario
 app.post('/guardar', (req, res) => {
   const { nombre, whatsapp, correo } = req.body;
   if (!nombre || !whatsapp || !correo) {
