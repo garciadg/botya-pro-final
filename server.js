@@ -1,10 +1,9 @@
 const express = require('express');
 const axios = require('axios');
-const fs = require('fs');
 const path = require('path');
 
-const ZAPI_TOKEN = "TU_TOKEN_DE_ZAPI"; // 🔁 Reemplazá con tu token real
-const INSTANCE_ID = "YOUR_INSTANCE_ID"; // 🔁 Reemplazá con tu ID real
+const ZAPI_TOKEN = "TU_TOKEN_DE_ZAPI"; // 🟡 Reemplazá por tu token real
+const INSTANCE_ID = "YOUR_INSTANCE_ID"; // 🟡 Reemplazá por tu instance ID
 
 const app = express();
 
@@ -12,16 +11,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
+// Página principal
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "landing.html"));
 });
 
+// Webhook para recibir mensajes de WhatsApp
 app.post("/webhook", async (req, res) => {
   const mensaje = req.body;
+
   if (!mensaje || !mensaje.message || !mensaje.message.from) return res.sendStatus(200);
 
   const numero = mensaje.message.from;
-  const texto = mensaje.message.text.body.toLowerCase();
+  const texto = mensaje.message.text?.body?.toLowerCase() || "";
 
   let respuesta = "🤖 Hola, soy BotYa Paraguay. ¿En qué puedo ayudarte?\n";
   respuesta += "1️⃣ Activar mi bot\n";
@@ -33,6 +35,7 @@ app.post("/webhook", async (req, res) => {
       phone: numero,
       message: respuesta
     });
+    console.log(`📩 Respuesta enviada a ${numero}`);
   } catch (error) {
     console.error("❌ Error al responder:", error.message);
   }
@@ -44,3 +47,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🟢 BotYa ZAPI activo en http://localhost:${PORT}`);
 });
+
