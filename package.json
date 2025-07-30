@@ -1,12 +1,12 @@
 {
-  "name": "botya-pro-final",
+  "name": "botya-whatsapp",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "bot.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node bot.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "qrcode": "^1.5.0"
+    "@hapi/boom": "^10.0.0",
+    "@whiskeysockets/baileys": "^6.7.0"
   }
 }
