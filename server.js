@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
-const bot = new Telegraf(config.telegramToken);
+const bot = new Telegraf("8151070733:AAHDUKZL0h_jBOZ0nq709IlpHBvteJpeq4U");
 
 // Página principal
 app.get('/', (req, res) => {
