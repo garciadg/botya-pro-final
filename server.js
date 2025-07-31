@@ -9,22 +9,22 @@ const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// 🧠 Token del bot (copialo desde BotFather o config.js)
-const TELEGRAM_TOKEN = '8151907733:AAHDUKZL0h_jBOZ0nq7B9TlPhBvteJpeq4U';
+// 🔐 Token real de tu bot (protegido en producción idealmente)
+const TELEGRAM_TOKEN = '8151070733:AAHDUKZL0h_jBOZ0nq709IlpHBvteJpeq4U';
 const bot = new Telegraf(TELEGRAM_TOKEN);
 
-// 🌐 Página visual
+// 🌐 Página principal
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'landing.html'));
 });
 
-// 📝 Logger simple
-function log(texto) {
+// 📝 Logger
+function log(text) {
   const now = new Date().toISOString();
-  fs.appendFileSync('log.txt', `[${now}] ${texto}\n`);
+  fs.appendFileSync('log.txt', `[${now}] ${text}\n`);
 }
 
-// 🤖 Inicia el bot
+// 🤖 Inicio del bot
 bot.start((ctx) => {
   const nombre = ctx.from.first_name || "Cliente";
   const telefono = String(ctx.from.id);
@@ -32,8 +32,8 @@ bot.start((ctx) => {
   const licencia = licencias.find(l => l.telefono === telefono && l.activo);
 
   if (!licencia) {
-    ctx.reply("❌ No estás autorizado. Escribí a soporte para obtener tu licencia.");
-    log(`⛔ Intento no autorizado: ${telefono}`);
+    ctx.reply("❌ No estás autorizado. Escribí a soporte para activar tu licencia.");
+    log(`⛔ Acceso bloqueado - ID: ${telefono}`);
     return;
   }
 
@@ -41,37 +41,33 @@ bot.start((ctx) => {
   log(`✅ Acceso autorizado: ${telefono}`);
 });
 
-// 🧾 Opción 1 - Activar
+// Menú
 bot.hears('1', (ctx) => {
-  ctx.reply('✅ Para activar tu bot, completá el formulario o escribinos por acá. Pronto recibirás tu licencia.');
+  ctx.reply('✅ Para activar tu bot, completá el formulario o escribinos por acá. ¡Gracias!');
 });
-
-// 💰 Opción 2 - Precios
 bot.hears('2', (ctx) => {
-  ctx.reply('💰 El precio es 250.000 Gs/mes con instalación gratuita y soporte.');
+  ctx.reply('💰 El precio es 250.000 Gs/mes. Incluye instalación gratuita y soporte.');
 });
-
-// 📞 Opción 3 - Soporte
 bot.hears('3', (ctx) => {
-  ctx.reply('📲 Contactanos al WhatsApp: +595994882364 o seguí escribiendo por acá.');
+  ctx.reply('📲 Escribinos al WhatsApp: +595994882364 o seguí chateando por acá.');
 });
 
-// ✨ GPT o respuestas automáticas
+// GPT (o respuestas básicas)
 bot.on('text', (ctx) => {
   const texto = ctx.message.text.toLowerCase();
   const telefono = String(ctx.from.id);
 
   respuestasGPT(texto).then((respuesta) => {
     ctx.reply(respuesta);
-    log(`📩 GPT ${telefono}: ${texto} => ${respuesta}`);
+    log(`💬 ${telefono}: ${texto} => ${respuesta}`);
   });
 });
 
-// 🚀 Ejecutar servidor y bot
+// Iniciar servidor + bot
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🌐 Web activa en http://localhost:${PORT}`);
+  console.log(`🌐 Web corriendo en http://localhost:${PORT}`);
 });
 bot.launch();
-console.log('🤖 Bot de Telegram lanzado');
+console.log('🤖 BotYa Paraguay activo en Telegram');
 
