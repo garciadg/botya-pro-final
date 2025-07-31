@@ -1,6 +1,7 @@
 {
-  "name": "botya-telegram",
+  "name": "botya-paraguay",
   "version": "1.0.0",
+  "description": "BotYa Paraguay - Bot de atención por Telegram",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
