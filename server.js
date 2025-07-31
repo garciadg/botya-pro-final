@@ -1,56 +1,77 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
 const path = require('path');
+const fs = require('fs');
+const licencias = require('./licencias.json');
+const respuestasGPT = require('./gpt-autorespuesta');
 
 const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// TOKEN del bot de Telegram (REAL)
-const TELEGRAM_TOKEN = '8151070733:AAHDUKZL0h_jBOZ0nq709IlpHBvteJpeq4U';
+// 🧠 Token del bot (copialo desde BotFather o config.js)
+const TELEGRAM_TOKEN = '8151907733:AAHDUKZL0h_jBOZ0nq7B9TlPhBvteJpeq4U';
 const bot = new Telegraf(TELEGRAM_TOKEN);
 
-// Página visual
+// 🌐 Página visual
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'landing.html'));
 });
 
-// Lógica del bot
+// 📝 Logger simple
+function log(texto) {
+  const now = new Date().toISOString();
+  fs.appendFileSync('log.txt', `[${now}] ${texto}\n`);
+}
+
+// 🤖 Inicia el bot
 bot.start((ctx) => {
-  ctx.reply(`🤖 Bienvenido a *BotYa Paraguay*
-¿Qué querés hacer?
+  const nombre = ctx.from.first_name || "Cliente";
+  const telefono = String(ctx.from.id);
 
-1️⃣ Activar mi bot
-2️⃣ Ver precios
-3️⃣ Hablar con soporte`);
+  const licencia = licencias.find(l => l.telefono === telefono && l.activo);
+
+  if (!licencia) {
+    ctx.reply("❌ No estás autorizado. Escribí a soporte para obtener tu licencia.");
+    log(`⛔ Intento no autorizado: ${telefono}`);
+    return;
+  }
+
+  ctx.reply(`👋 ¡Hola ${nombre}!\nBienvenido a *BotYa Paraguay*\n\n¿Qué querés hacer?\n\n1️⃣ Activar mi bot\n2️⃣ Ver precios\n3️⃣ Hablar con soporte`);
+  log(`✅ Acceso autorizado: ${telefono}`);
 });
 
-bot.hears(/1/, (ctx) => {
-  ctx.reply('✅ Para activar tu bot, completá el formulario o escribinos por aquí. Pronto recibirás tu licencia.');
+// 🧾 Opción 1 - Activar
+bot.hears('1', (ctx) => {
+  ctx.reply('✅ Para activar tu bot, completá el formulario o escribinos por acá. Pronto recibirás tu licencia.');
 });
 
-bot.hears(/2/, (ctx) => {
-  ctx.reply(`💰 Nuestros planes:
-🔹 Básico: Gs. 99.000/mes
-🔹 Pro: Gs. 199.000/mes con menú y base de datos.`);
+// 💰 Opción 2 - Precios
+bot.hears('2', (ctx) => {
+  ctx.reply('💰 El precio es 250.000 Gs/mes con instalación gratuita y soporte.');
 });
 
-bot.hears(/3/, (ctx) => {
-  ctx.reply('📞 Un asesor se comunicará con vos en breve. También podés escribir al 0994-882364.');
+// 📞 Opción 3 - Soporte
+bot.hears('3', (ctx) => {
+  ctx.reply('📲 Contactanos al WhatsApp: +595994882364 o seguí escribiendo por acá.');
 });
 
-bot.hears(/hola|hola bot|hi|hello/i, (ctx) => {
-  ctx.reply(`Hola 👋 Escribí 1, 2 o 3 para avanzar:
+// ✨ GPT o respuestas automáticas
+bot.on('text', (ctx) => {
+  const texto = ctx.message.text.toLowerCase();
+  const telefono = String(ctx.from.id);
 
-1️⃣ Activar mi bot
-2️⃣ Ver precios
-3️⃣ Hablar con soporte`);
+  respuestasGPT(texto).then((respuesta) => {
+    ctx.reply(respuesta);
+    log(`📩 GPT ${telefono}: ${texto} => ${respuesta}`);
+  });
 });
 
-bot.launch();
-
+// 🚀 Ejecutar servidor y bot
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🟢 BotYa Telegram corriendo en puerto ${PORT}`);
+  console.log(`🌐 Web activa en http://localhost:${PORT}`);
 });
+bot.launch();
+console.log('🤖 Bot de Telegram lanzado');
 
