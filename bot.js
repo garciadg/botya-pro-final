@@ -1,16 +1,20 @@
-const makeWASocket = require('@whiskeysockets/baileys').default;
-const { useSingleFileAuthState } = require('@whiskeysockets/baileys');
+const { default: makeWASocket, useSingleFileAuthState } = require('@whiskeysockets/baileys');
 const { Boom } = require('@hapi/boom');
 const { Configuration, OpenAIApi } = require("openai");
-const { default: Pino } = require("pino");
+const Pino = require("pino");
 const dotenv = require('dotenv');
 dotenv.config();
 
 const fs = require('fs');
 const path = require('path');
+
+// Autenticación del bot
 const { state, saveState } = useSingleFileAuthState(path.resolve(__dirname, 'auth_info.json'));
 
-const config = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
+// Configurar conexión con OpenAI
+const config = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY
+});
 const openai = new OpenAIApi(config);
 
 async function runBot() {
@@ -29,28 +33,34 @@ async function runBot() {
     console.log("Mensaje recibido:", text);
 
     if (text === "1") {
-      await sock.sendMessage(from, { text: "📌 Esta es una demo de BotYa Paraguay con IA 🤖" });
+      await sock.sendMessage(from, {
+        text: "📌 Esta es una demo de BotYa Paraguay con IA 🤖"
+      });
     } else if (text === "2") {
-      await sock.sendMessage(from, { text: "📱 Contacto: +595 994 882 364" });
+      await sock.sendMessage(from, {
+        text: "📱 Contacto: +595 994 882 364"
+      });
     } else if (text === "3") {
-      await sock.sendMessage(from, { text: "🧠 Escribí algo y te responderé con IA..." });
+      await sock.sendMessage(from, {
+        text: "🧠 Escribí tu mensaje y te responderé con inteligencia artificial..."
+      });
     } else if (text.length > 5) {
       const completion = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: text }]
       });
-      await sock.sendMessage(from, { text: completion.data.choices[0].message.content });
+      await sock.sendMessage(from, {
+        text: completion.data.choices[0].message.content
+      });
     } else {
       await sock.sendMessage(from, {
-  text: "Bienvenido a BotYa Paraguay."
-
-1 - "Información"
-2 - "Contacto"
-3 - "Hablar con IA"
-});
-
+        text: "👋 Bienvenido a BotYa Paraguay.\n\n1 - Información\n2 - Contacto\n3 - Hablar con IA"
+      });
+    }
+  });
 
   sock.ev.on('creds.update', saveState);
 }
 
 runBot();
+
