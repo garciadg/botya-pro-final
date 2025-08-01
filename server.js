@@ -1,9 +1,12 @@
-const express = require('express');
-const path = require('path');
+const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const { Boom } = require('@hapi/boom');
 const fs = require('fs');
-const { Telegraf } = require('telegraf');
-const licencias = require('./licencias.json');
-const config = require('./config'); // contiene el token del bot
+const config = require('./config');
+const gptRespuesta = require('./gpt-autorespuesta');
+
+// 🔑 Esto es lo que te falta:
+const { state, saveState } = useSingleFileAuthState('./auth_info.json');
+
 
 const app = express();
 app.use(express.json());
