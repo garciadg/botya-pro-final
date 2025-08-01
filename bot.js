@@ -1,14 +1,10 @@
-const makeWASocket = require('@whiskeysockets/baileys').default;
-const { useSingleFileAuthState } = require('@whiskeysockets/baileys');
-const { Boom } = require('@hapi/boom');
+const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys');
 const { Configuration, OpenAIApi } = require("openai");
 const { default: Pino } = require("pino");
 const dotenv = require('dotenv');
 dotenv.config();
 
-const fs = require('fs');
-const path = require('path');
-const { state, saveState } = useSingleFileAuthState(path.resolve(__dirname, 'auth_info.json'));
+const { state, saveCreds } = await useMultiFileAuthState('./auth_info_baileys');
 
 const config = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -30,27 +26,33 @@ async function runBot() {
 
     console.log("📩 Mensaje recibido:", text);
 
-    if (text === "1") {
-      await sock.sendMessage(from, { text: "📌 Esta es una demo de BotYa Paraguay con IA 🤖" });
-    } else if (text === "2") {
-      await sock.sendMessage(from, { text: "📱 Contacto: +595 994 882 364" });
-    } else if (text === "3") {
-      await sock.sendMessage(from, { text: "🧠 Escribí tu pregunta para que la IA responda..." });
-    } else if (text.length > 5) {
-      const completion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: text }]
-      });
-      const response = completion.data.choices[0].message.content;
-      await sock.sendMessage(from, { text: response });
-    } else {
-      await sock.sendMessage(from, {
-        text: "👋 Bienvenido a BotYa Paraguay.\n\n1 - Información\n2 - Contacto\n3 - Hablar con IA"
-      });
+    try {
+      if (text === "1") {
+        await sock.sendMessage(from, { text: "📌 Esta es una demo de BotYa Paraguay con IA 🤖" });
+      } else if (text === "2") {
+        await sock.sendMessage(from, { text: "📱 Contacto: +595 994 882 364" });
+      } else if (text === "3") {
+        await sock.sendMessage(from, { text: "🧠 Escribí tu pregunta para que la IA responda..." });
+      } else if (text.length > 5) {
+        const completion = await openai.createChatCompletion({
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: text }]
+        });
+        const response = completion.data.choices[0].message.content;
+        await sock.sendMessage(from, { text: response });
+      } else {
+        await sock.sendMessage(from, {
+          text: "👋 Bienvenido a BotYa Paraguay.\n\n1 - Información\n2 - Contacto\n3 - Hablar con IA"
+        });
+      }
+    } catch (err) {
+      await sock.sendMessage(from, { text: "❌ Ocurrió un error al procesar tu mensaje." });
+      console.error(err);
     }
   });
 
-  sock.ev.on('creds.update', saveState);
+  sock.ev.on('creds.update', saveCreds);
 }
 
 runBot();
+
