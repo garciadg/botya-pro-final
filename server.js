@@ -1,22 +1,25 @@
+// server.js
+
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const { Telegraf } = require('telegraf');
 const licencias = require('./licencias.json');
+const config = require('./config'); // Trae el token desde config.js
 
 const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// ⚠️ Token seguro desde variables de entorno (configuralo en Railway)
-const bot = new Telegraf(process.env.BOT_TOKEN || "8151070733:AAHDUKZL0h_jBOZ0nq709IlpHBvteJpeq4U");
+// Inicializa el bot con el token importado
+const bot = new Telegraf(process.env.BOT_TOKEN || config.telegramToken);
 
 // Página principal
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'landing.html'));
 });
 
-// Guardar flyer desde formulario
+// Ruta para subir el flyer desde formulario web
 app.post('/subir-flyer', (req, res) => {
   const { negocio, imagenBase64 } = req.body;
 
@@ -25,7 +28,7 @@ app.post('/subir-flyer', (req, res) => {
   }
 
   const nombreArchivo = `clientes/${negocio}-flyer.png`;
-  const base64Data = imagenBase64.replace(/^data:image\/png;base64,/, "");
+  const base64Data = imagenBase64.replace(/^data:image\/png;base64,/, '');
 
   try {
     fs.writeFileSync(nombreArchivo, base64Data, 'base64');
@@ -36,7 +39,7 @@ app.post('/subir-flyer', (req, res) => {
   }
 });
 
-// Lógica del bot Telegram
+// Comando /start en Telegram
 bot.start((ctx) => {
   const id = String(ctx.from.id);
   const licencia = licencias.find(l => l.id === id && l.activo);
@@ -52,6 +55,7 @@ bot.start((ctx) => {
 2️⃣ Ver información`);
 });
 
+// Opción 1: Enviar flyer
 bot.hears('1', (ctx) => {
   const id = String(ctx.from.id);
   const licencia = licencias.find(l => l.id === id && l.activo);
@@ -70,6 +74,7 @@ bot.hears('1', (ctx) => {
   }
 });
 
+// Opción 2: Ver nombre del negocio
 bot.hears('2', (ctx) => {
   const id = String(ctx.from.id);
   const licencia = licencias.find(l => l.id === id && l.activo);
@@ -81,14 +86,14 @@ bot.hears('2', (ctx) => {
   }
 });
 
-// Prevención del error 409 en Railway
+// Iniciar el bot solo si no está siendo importado
 if (!module.parent) {
   bot.launch().catch(err => {
     console.error('❌ Error al iniciar el bot:', err);
   });
 }
 
-// Servidor web
+// Levantar el servidor web
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🌐 Web disponible en http://localhost:${PORT}`);
