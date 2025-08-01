@@ -4,14 +4,14 @@ const { default: Pino } = require("pino");
 const dotenv = require('dotenv');
 dotenv.config();
 
-const { state, saveCreds } = await useMultiFileAuthState('./auth_info_baileys');
-
-const config = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(config);
-
 async function runBot() {
+  const { state, saveCreds } = await useMultiFileAuthState('./auth_info_baileys');
+
+  const config = new Configuration({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+  const openai = new OpenAIApi(config);
+
   const sock = makeWASocket({
     logger: Pino({ level: 'silent' }),
     printQRInTerminal: true,
@@ -54,5 +54,7 @@ async function runBot() {
   sock.ev.on('creds.update', saveCreds);
 }
 
-runBot();
+runBot().catch(err => {
+  console.error("❌ Error al iniciar el bot:", err);
+});
 
