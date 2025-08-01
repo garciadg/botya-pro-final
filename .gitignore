@@ -11,9 +11,9 @@ auth_info.json
 *.log
 npm-debug.log*
 
-# Sistema operativo
+# Archivos del sistema operativo
 .DS_Store
 Thumbs.db
 
-# Otros archivos temporales
+# Archivos temporales
 *.tmp
