@@ -42,7 +42,7 @@ async function runBot() {
       await sock.sendMessage(from, { text: completion.data.choices[0].message.content });
     } else {
       await sock.sendMessage(from, {
-        text: "👋 Bienvenido a BotYa Paraguay.
+        text: "Bienvenido a BotYa Paraguay."
 
 1 - Información
 2 - Contacto
