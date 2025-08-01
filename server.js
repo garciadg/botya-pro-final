@@ -1,5 +1,3 @@
-// 📁 ARCHIVO: server.js
-
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
@@ -10,15 +8,15 @@ const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// Token del bot de Telegram (reemplazar con variable de entorno en producción)
-const bot = new Telegraf(process.env.BOT_TOKEN || "8151070733:AAHDUKZL0h_jBOZ0nq709IlpHBvteJpeq4U");
+// ⚠️ Token seguro desde variables de entorno (configuralo en Railway)
+const bot = new Telegraf(process.env.BOT_TOKEN || "TU_TOKEN_AQUÍ");
 
 // Página principal
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'landing.html'));
 });
 
-// Guardar flyer desde el formulario web
+// Guardar flyer desde formulario
 app.post('/subir-flyer', (req, res) => {
   const { negocio, imagenBase64 } = req.body;
 
@@ -38,7 +36,7 @@ app.post('/subir-flyer', (req, res) => {
   }
 });
 
-// 📲 Lógica del bot de Telegram
+// Lógica del bot Telegram
 bot.start((ctx) => {
   const id = String(ctx.from.id);
   const licencia = licencias.find(l => l.id === id && l.activo);
@@ -83,7 +81,7 @@ bot.hears('2', (ctx) => {
   }
 });
 
-// ⚠️ Prevención de múltiples instancias (409 Conflict)
+// Prevención del error 409 en Railway
 if (!module.parent) {
   bot.launch().catch(err => {
     console.error('❌ Error al iniciar el bot:', err);
