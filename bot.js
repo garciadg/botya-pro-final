@@ -1,22 +1,24 @@
+// 📦 DEPENDENCIAS
 const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
 const { Boom } = require('@hapi/boom');
 const fs = require('fs');
 const P = require('pino');
 
-// Estado de sesión (se guarda en archivo local)
+// 🗂️ AUTENTICACIÓN (guarda sesión)
 const { state, saveState } = useSingleFileAuthState('./auth_info.json');
 
+// 🚀 FUNCIÓN PRINCIPAL
 async function iniciarBot() {
   const sock = makeWASocket({
     logger: P({ level: 'silent' }),
-    printQRInTerminal: true,
+    printQRInTerminal: true, // Muestra el código QR en consola
     auth: state
   });
 
-  // Guardar credenciales
+  // 🧠 GUARDAR CREDENCIALES
   sock.ev.on('creds.update', saveState);
 
-  // Escuchar mensajes entrantes
+  // 📩 ESCUCHAR MENSAJES
   sock.ev.on('messages.upsert', async ({ messages, type }) => {
     if (type !== 'notify' || !messages || !messages[0]) return;
 
@@ -26,36 +28,41 @@ async function iniciarBot() {
 
     if (!texto) return;
 
-    console.log(`[${remitente}] → ${texto}`);
+    console.log(`📨 Mensaje recibido de ${remitente}: ${texto}`);
 
-    let respuesta = "🤖 Hola, soy BotYa Paraguay. ¿Cómo puedo ayudarte?";
-    if (texto.toLowerCase().includes("precio")) {
-      respuesta = "💵 El precio es 250.000 Gs por mes con instalación gratuita.";
-    } else if (texto.toLowerCase().includes("activar")) {
-      respuesta = "✅ Ya estás registrado. Pronto activaremos tu licencia.";
+    // 💬 RESPONDER A MENSAJE
+    if (texto.toLowerCase() === 'hola') {
+      await sock.sendMessage(remitente, { text: '👋 ¡Hola! Bienvenido a BotYa Paraguay por WhatsApp 🚀' });
+    } else if (texto === '1') {
+      await sock.sendMessage(remitente, { text: '📸 Aún no cargaste tu flyer.' });
+    } else if (texto === '2') {
+      await sock.sendMessage(remitente, { text: '📌 Tu negocio: BotYa Paraguay' });
+    } else {
+      await sock.sendMessage(remitente, { text: '❓ Escribí "hola", "1" o "2".' });
     }
-
-    await sock.sendMessage(remitente, { text: respuesta });
   });
 
-  // Manejar conexión cerrada o errores
+  // 🔁 RECONEXIÓN SI SE DESCONECTA
   sock.ev.on('connection.update', (update) => {
     const { connection, lastDisconnect } = update;
 
     if (connection === 'close') {
-      const debeReconectar = (lastDisconnect.error instanceof Boom) &&
-        lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut;
+      const motivo = new Boom(lastDisconnect?.error)?.output?.statusCode;
 
-      console.log("⛔ Bot desconectado. ¿Reconectar?", debeReconectar);
-
-      if (debeReconectar) iniciarBot();
-    }
-
-    if (connection === 'open') {
-      console.log("✅ BotYa Paraguay conectado correctamente a WhatsApp");
+      if (motivo === DisconnectReason.loggedOut) {
+        console.log('🔒 Sesión cerrada. Escaneá el código QR nuevamente.');
+        fs.unlinkSync('./auth_info.json'); // Borra sesión para forzar reautenticación
+        iniciarBot(); // Reinicia bot
+      } else {
+        console.log('🔁 Reconectando...');
+        iniciarBot();
+      }
+    } else if (connection === 'open') {
+      console.log('✅ Bot conectado exitosamente a WhatsApp.');
     }
   });
 }
 
 iniciarBot();
+
 
