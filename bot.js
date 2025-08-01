@@ -56,3 +56,4 @@ async function runBot() {
 runBot().catch(err => {
   console.error("❌ Error al iniciar el bot:", err);
 });
+
