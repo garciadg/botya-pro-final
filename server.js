@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 // ⚠️ Token seguro desde variables de entorno (configuralo en Railway)
-const bot = new Telegraf(process.env.BOT_TOKEN || "TU_TOKEN_AQUÍ");
+const bot = new Telegraf(process.env.BOT_TOKEN || "8151070733:AAHDUKZL0h_jBOZ0nq709IlpHBvteJpeq4U");
 
 // Página principal
 app.get('/', (req, res) => {
