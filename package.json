@@ -1,7 +1,7 @@
 {
   "name": "botya-paraguay-pro",
   "version": "1.0.1",
-  "type": "module",
+ 
   "description": "BotYa Paraguay PRO - Bot de atención con IA",
   "main": "bot.js",
   "scripts": {
