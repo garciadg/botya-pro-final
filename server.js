@@ -6,9 +6,9 @@ app.get('/', (req, res) => {
   res.send('✅ BotYa Demo GPT está corriendo correctamente.');
 });
 
-// Puerto compatible con Railway (usa el asignado o 8080 como fallback)
+// Puerto para Railway o local
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor en marcha en http://localhost:${PORT}`);
+  console.log(`🚀 Servidor activo en http://localhost:${PORT}`);
 });
