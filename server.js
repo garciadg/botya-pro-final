@@ -13,4 +13,9 @@ app.listen(PORT, () => {
 });
 
 // 🧠 Ejecutar el bot de WhatsApp automáticamente al iniciar el server
-require('./bot');
+try {
+  require('./bot');
+  console.log('🤖 Bot de WhatsApp iniciado correctamente.');
+} catch (err) {
+  console.error('❌ Error al iniciar el bot de WhatsApp:', err);
+}
