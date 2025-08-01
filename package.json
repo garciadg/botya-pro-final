@@ -1,17 +1,16 @@
 {
   "name": "botya-pro-final",
   "version": "1.0.0",
-  "description": "Bot de WhatsApp con IA - BotYa Paraguay",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"
   },
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.6.0",
-    "@hapi/boom": "^10.1.2",
+    "@whiskeysockets/baileys": "^6.5.0",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "openai": "^4.0.0",
-    "pino": "^8.0.0"
+    "openai": "^4.19.0",
+    "@hapi/boom": "^11.1.4",
+    "pino": "^8.14.1"
   }
 }
