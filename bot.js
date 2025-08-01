@@ -4,7 +4,7 @@ const fs = require('fs');
 const config = require('./config');
 const gptRespuesta = require('./gpt-autorespuesta');
 
-const { state, saveState } = useSingleFileAuthState('./auth_info.json');
+
 
 async function conectarBot() {
   const sock = makeWASocket({
