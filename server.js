@@ -4,8 +4,9 @@ const fs = require('fs');
 const config = require('./config');
 const gptRespuesta = require('./gpt-autorespuesta');
 
-// 🔥 Esta línea es clave:
+// ✅ ESTA LÍNEA es la que falta:
 const { state, saveState } = useSingleFileAuthState('./auth_info.json');
+
 
 async function conectarBot() {
   const sock = makeWASocket({
