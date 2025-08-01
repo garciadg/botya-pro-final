@@ -1,8 +1,8 @@
-const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
-const { Boom } = require('@hapi/boom');
-const fs = require('fs');
-const config = require('./config');
-const gptRespuesta = require('./gpt-autorespuesta');
+import makeWASocket, { useSingleFileAuthState, DisconnectReason } from '@whiskeysockets/baileys';
+import { Boom } from '@hapi/boom';
+import fs from 'fs';
+import config from './config.js';
+import gptRespuesta from './gpt-autorespuesta.js';
 
 const { state, saveState } = useSingleFileAuthState('./auth_info.json');
 
@@ -24,27 +24,14 @@ async function conectarBot() {
     console.log(`💬 Mensaje de ${id}: ${texto}`);
 
     if (texto.toLowerCase().includes('hola')) {
-      const menu = `🤖 *BotYa Paraguay* te da la bienvenida
-
-Automatizá tu negocio con IA:
-✅ Vendé
-✅ Atendé
-✅ Agendá 24/7
-
-📍Elegí una opción:
-1️⃣ Ver precios
-2️⃣ Agendar cita
-3️⃣ Hablar con asesor
-
-Escribí el número de la opción.`;
+      const menu = `🤖 *BotYa Paraguay* te da la bienvenida\n\nAutomatizá tu negocio con IA:\n✅ Vendé\n✅ Atendé\n✅ Agendá 24/7\n\n📍Elegí una opción:\n1️⃣ Ver precios\n2️⃣ Agendar cita\n3️⃣ Hablar con asesor\n\nEscribí el número de la opción.`;
       await sock.sendMessage(id, { text: menu });
       return;
     }
 
     const respuesta = await gptRespuesta(texto);
     await sock.sendMessage(id, { text: respuesta });
-    fs.appendFileSync('log.txt', `${new Date().toISOString()} - ${id} -> ${texto}
-`);
+    fs.appendFileSync('log.txt', `${new Date().toISOString()} - ${id} -> ${texto}\n`);
   });
 
   sock.ev.on('connection.update', (update) => {
