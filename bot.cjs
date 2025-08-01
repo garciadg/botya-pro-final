@@ -6,6 +6,7 @@ const gptRespuesta = require('./gpt-autorespuesta');
 
 
 
+
 async function conectarBot() {
   const sock = makeWASocket({
     auth: state,
