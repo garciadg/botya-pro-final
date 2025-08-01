@@ -4,112 +4,52 @@ const fs = require('fs');
 const config = require('./config');
 const gptRespuesta = require('./gpt-autorespuesta');
 
-// 🔑 Esto es lo que te falta:
+// 🔥 Esta línea es clave:
 const { state, saveState } = useSingleFileAuthState('./auth_info.json');
 
-
-const app = express();
-app.use(express.json());
-app.use(express.static(__dirname));
-
-// 🔐 Cargar token desde Railway o config.js
-const bot = new Telegraf(process.env.BOT_TOKEN || config.telegramToken);
-
-// 🏠 Página principal
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'landing.html'));
-});
-
-// 📤 Ruta para subir el flyer desde formulario web
-app.post('/subir-flyer', (req, res) => {
-  const { negocio, imagenBase64 } = req.body;
-
-  if (!negocio || !imagenBase64) {
-    return res.status(400).json({ error: 'Faltan datos del formulario.' });
-  }
-
-  const nombreArchivo = `clientes/${negocio}-flyer.png`;
-  const base64Data = imagenBase64.replace(/^data:image\/png;base64,/, '');
-
-  try {
-    fs.writeFileSync(nombreArchivo, base64Data, 'base64');
-    res.send({ status: 'ok' });
-    console.log(`✅ Flyer guardado: ${nombreArchivo}`);
-  } catch (err) {
-    console.error('❌ Error al guardar el flyer:', err);
-    res.status(500).send({ error: 'No se pudo guardar la imagen.' });
-  }
-});
-
-// 🤖 Comando /start
-bot.start((ctx) => {
-  const id = String(ctx.from.id);
-  console.log("📩 Recibí /start de ID:", id);
-
-  const licencia = licencias.find(l => l.id === id && l.activo);
-
-  if (!licencia) {
-    ctx.reply('❌ Tu bot no está habilitado. Solicitá tu licencia.');
-    console.log("⛔ Usuario no autorizado:", id);
-    return;
-  }
-
-  ctx.reply(`👋 ¡Bienvenido a BotYa Paraguay, ${licencia.nombreNegocio || 'Negocio'}!
-¿Qué deseás hacer?
-1️⃣ Enviar flyer
-2️⃣ Ver información`);
-  console.log("✅ Menú enviado al usuario:", licencia.nombreNegocio);
-});
-
-// 📸 Comando "1" - Enviar flyer
-bot.hears('1', (ctx) => {
-  const id = String(ctx.from.id);
-  const licencia = licencias.find(l => l.id === id && l.activo);
-
-  if (!licencia || !licencia.nombreNegocio) {
-    ctx.reply('❌ No se encontró tu licencia o el nombre del negocio.');
-    return;
-  }
-
-  const flyerPath = `clientes/${licencia.nombreNegocio}-flyer.png`;
-
-  if (fs.existsSync(flyerPath)) {
-    ctx.replyWithPhoto({ source: flyerPath });
-    console.log(`📨 Flyer enviado: ${flyerPath}`);
-  } else {
-    ctx.reply('⚠️ Aún no cargaste tu flyer. Usá el formulario web para subirlo.');
-    console.log('⚠️ Flyer no encontrado:', flyerPath);
-  }
-});
-
-// ℹ️ Comando "2" - Ver información
-bot.hears('2', (ctx) => {
-  const id = String(ctx.from.id);
-  const licencia = licencias.find(l => l.id === id && l.activo);
-
-  if (!licencia || !licencia.nombreNegocio) {
-    ctx.reply('⚠️ No se encontró información de tu negocio.');
-  } else {
-    ctx.reply(`📌 Nombre de tu negocio: ${licencia.nombreNegocio}`);
-    console.log(`ℹ️ Información enviada: ${licencia.nombreNegocio}`);
-  }
-});
-
-// 🟢 Iniciar el bot
-bot.launch()
-  .then(() => {
-    console.log('🤖 Bot iniciado correctamente.');
-  })
-  .catch(err => {
-    if (err.description?.includes('getUpdates')) {
-      console.error('⚠️ El bot ya se está ejecutando en otro lugar. Cerralo antes de iniciar uno nuevo.');
-    } else {
-      console.error('❌ Error al iniciar el bot:', err);
-    }
+async function conectarBot() {
+  const sock = makeWASocket({
+    auth: state,
+    printQRInTerminal: true,
   });
 
-// 🌐 Iniciar servidor Express
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`🌐 Web disponible en http://localhost:${PORT}`);
-});
+  sock.ev.on('creds.update', saveState);
+
+  sock.ev.on('messages.upsert', async ({ messages }) => {
+    const msg = messages[0];
+    if (!msg.message || msg.key.fromMe) return;
+
+    const id = msg.key.remoteJid;
+    const texto = msg.message.conversation || msg.message.extendedTextMessage?.text || '';
+
+    console.log(`💬 Mensaje de ${id}: ${texto}`);
+
+    if (texto.toLowerCase().includes('hola')) {
+      const menu = `🤖 *BotYa Paraguay* te da la bienvenida\n\nAutomatizá tu negocio con IA:\n✅ Vendé\n✅ Atendé\n✅ Agendá 24/7\n\n📍Elegí una opción:\n1️⃣ Ver precios\n2️⃣ Agendar cita\n3️⃣ Hablar con asesor`;
+      await sock.sendMessage(id, { text: menu });
+      return;
+    }
+
+    const respuesta = await gptRespuesta(texto);
+    await sock.sendMessage(id, { text: respuesta });
+
+    fs.appendFileSync('log.txt', `${new Date().toISOString()} - ${id} -> ${texto}\n`);
+  });
+
+  sock.ev.on('connection.update', (update) => {
+    const { connection, lastDisconnect } = update;
+
+    if (connection === 'close') {
+      if ((lastDisconnect?.error)?.output?.statusCode !== DisconnectReason.loggedOut) {
+        conectarBot();
+      } else {
+        console.log('❌ Se cerró la sesión');
+      }
+    } else if (connection === 'open') {
+      console.log('✅ BotYa Paraguay está conectado');
+    }
+  });
+}
+
+conectarBot();
+
