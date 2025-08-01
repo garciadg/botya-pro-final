@@ -1,13 +1,10 @@
-import baileys from '@whiskeysockets/baileys';
-import { Boom } from '@hapi/boom';
-import fs from 'fs';
-import config from './config.js';
-import gptRespuesta from './gpt-autorespuesta.js';
+const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const { Boom } = require('@hapi/boom');
+const fs = require('fs');
+const config = require('./config');
+const gptRespuesta = require('./gpt-autorespuesta');
 
-const makeWASocket = baileys.default;
-const { useSingleFileAuthState, DisconnectReason } = baileys;
 const { state, saveState } = useSingleFileAuthState('./auth_info.json');
-
 
 async function conectarBot() {
   const sock = makeWASocket({
@@ -52,4 +49,5 @@ async function conectarBot() {
 }
 
 conectarBot();
+
 
