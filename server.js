@@ -85,13 +85,18 @@ bot.hears('2', (ctx) => {
 });
 
 // 🚀 Iniciar el bot si no fue importado
-if (!module.parent) {
-  bot.launch().then(() => {
+bot.launch()
+  .then(() => {
     console.log('🤖 Bot iniciado correctamente.');
-  }).catch(err => {
-    console.error('❌ Error al iniciar el bot:', err);
+  })
+  .catch(err => {
+    if (err.description && err.description.includes('getUpdates')) {
+      console.error('⚠️ El bot ya se está ejecutando en otro lugar. Cerralo antes de iniciar uno nuevo.');
+    } else {
+      console.error('❌ Error al iniciar el bot:', err);
+    }
   });
-}
+
 
 // 🌍 Iniciar servidor web
 const PORT = process.env.PORT || 3000;
