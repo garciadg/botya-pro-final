@@ -1,10 +1,11 @@
-import pkg from '@whiskeysockets/baileys';
+import baileys from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import fs from 'fs';
 import config from './config.js';
 import gptRespuesta from './gpt-autorespuesta.js';
 
-const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = pkg;
+const makeWASocket = baileys.default;
+const { useSingleFileAuthState, DisconnectReason } = baileys;
 const { state, saveState } = useSingleFileAuthState('./auth_info.json');
 
 
