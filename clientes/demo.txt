@@ -1,0 +1,1 @@
+Esta carpeta puede guardar archivos por cliente si se desea.
