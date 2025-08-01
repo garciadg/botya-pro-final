@@ -1,25 +1,23 @@
-// server.js
-
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const { Telegraf } = require('telegraf');
 const licencias = require('./licencias.json');
-const config = require('./config'); // Trae el token desde config.js
+const config = require('./config'); // Contiene el token
 
 const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// Inicializa el bot con el token importado
+// 🔐 Cargar token desde variable de entorno o desde config.js
 const bot = new Telegraf(process.env.BOT_TOKEN || config.telegramToken);
 
-// Página principal
+// 🏠 Página principal
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'landing.html'));
 });
 
-// Ruta para subir el flyer desde formulario web
+// 🖼️ Subida de flyer vía formulario web
 app.post('/subir-flyer', (req, res) => {
   const { negocio, imagenBase64 } = req.body;
 
@@ -39,7 +37,7 @@ app.post('/subir-flyer', (req, res) => {
   }
 });
 
-// Comando /start en Telegram
+// 🤖 Inicio del bot con /start
 bot.start((ctx) => {
   const id = String(ctx.from.id);
   const licencia = licencias.find(l => l.id === id && l.activo);
@@ -55,7 +53,7 @@ bot.start((ctx) => {
 2️⃣ Ver información`);
 });
 
-// Opción 1: Enviar flyer
+// 📸 Comando "1" - Enviar flyer
 bot.hears('1', (ctx) => {
   const id = String(ctx.from.id);
   const licencia = licencias.find(l => l.id === id && l.activo);
@@ -74,7 +72,7 @@ bot.hears('1', (ctx) => {
   }
 });
 
-// Opción 2: Ver nombre del negocio
+// ℹ️ Comando "2" - Mostrar nombre del negocio
 bot.hears('2', (ctx) => {
   const id = String(ctx.from.id);
   const licencia = licencias.find(l => l.id === id && l.activo);
@@ -86,14 +84,16 @@ bot.hears('2', (ctx) => {
   }
 });
 
-// Iniciar el bot solo si no está siendo importado
+// 🚀 Iniciar el bot si no fue importado
 if (!module.parent) {
-  bot.launch().catch(err => {
+  bot.launch().then(() => {
+    console.log('🤖 Bot iniciado correctamente.');
+  }).catch(err => {
     console.error('❌ Error al iniciar el bot:', err);
   });
 }
 
-// Levantar el servidor web
+// 🌍 Iniciar servidor web
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🌐 Web disponible en http://localhost:${PORT}`);
