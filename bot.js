@@ -7,9 +7,17 @@ dotenv.config();
 async function runBot() {
   const { state, saveCreds } = await useMultiFileAuthState('./auth_info_baileys');
 
+  if (!process.env.OPENAI_API_KEY) {
+    console.error("❌ ERROR: No se encontró OPENAI_API_KEY");
+    process.exit(1);
+  }
+
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
   });
+
+
+  
 
   const sock = makeWASocket({
     logger: Pino({ level: 'silent' }),
