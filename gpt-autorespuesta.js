@@ -1,17 +1,18 @@
-const { Configuration, OpenAIApi } = require('openai');
-require('dotenv').config();
+import OpenAI from 'openai';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const configuration = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
-const openai = new OpenAIApi(configuration);
 
 async function gptRespuesta(texto) {
-  const completion = await openai.createChatCompletion({
-    model: 'gpt-4',
-    messages: [{ role: 'user', content: texto }]
+  const chatCompletion = await openai.chat.completions.create({
+    messages: [{ role: 'user', content: texto }],
+    model: 'gpt-4'
   });
-  return completion.data.choices[0].message.content;
+
+  return chatCompletion.choices[0].message.content;
 }
 
-module.exports = gptRespuesta;
+export default gptRespuesta;
