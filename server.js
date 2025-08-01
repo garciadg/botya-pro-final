@@ -1,12 +1,13 @@
-const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const baileys = require('@whiskeysockets/baileys');
+const makeWASocket = baileys.default;
+const { useSingleFileAuthState, DisconnectReason } = baileys;
 const { Boom } = require('@hapi/boom');
 const fs = require('fs');
 const config = require('./config');
 const gptRespuesta = require('./gpt-autorespuesta');
 
-// ✅ ESTA LÍNEA es la que falta:
+// ✅ Definición obligatoria
 const { state, saveState } = useSingleFileAuthState('./auth_info.json');
-
 
 async function conectarBot() {
   const sock = makeWASocket({
