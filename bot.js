@@ -1,5 +1,5 @@
 const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys');
-const { Configuration, OpenAIApi } = require("openai");
+const OpenAI = require("openai");
 const { default: Pino } = require("pino");
 const dotenv = require('dotenv');
 dotenv.config();
@@ -7,10 +7,9 @@ dotenv.config();
 async function runBot() {
   const { state, saveCreds } = await useMultiFileAuthState('./auth_info_baileys');
 
-  const config = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
   });
-  const openai = new OpenAIApi(config);
 
   const sock = makeWASocket({
     logger: Pino({ level: 'silent' }),
@@ -34,11 +33,11 @@ async function runBot() {
       } else if (text === "3") {
         await sock.sendMessage(from, { text: "🧠 Escribí tu pregunta para que la IA responda..." });
       } else if (text.length > 5) {
-        const completion = await openai.createChatCompletion({
+        const completion = await openai.chat.completions.create({
           model: "gpt-3.5-turbo",
           messages: [{ role: "user", content: text }]
         });
-        const response = completion.data.choices[0].message.content;
+        const response = completion.choices[0].message.content;
         await sock.sendMessage(from, { text: response });
       } else {
         await sock.sendMessage(from, {
@@ -57,4 +56,3 @@ async function runBot() {
 runBot().catch(err => {
   console.error("❌ Error al iniciar el bot:", err);
 });
-
