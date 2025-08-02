@@ -16,3 +16,4 @@ try {
 } catch (err) {
   console.error('❌ Error al iniciar el bot de WhatsApp:', err);
 }
+
