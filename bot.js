@@ -16,9 +16,6 @@ async function runBot() {
     apiKey: process.env.OPENAI_API_KEY
   });
 
-
-  
-
   const sock = makeWASocket({
     logger: Pino({ level: 'silent' }),
     printQRInTerminal: true,
