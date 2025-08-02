@@ -5,7 +5,7 @@ node_modules/
 .env
 
 # Archivo de autenticación de Baileys (WhatsApp Bot)
-auth_info.json
+auth_info_baileys
 
 # Logs
 *.log
