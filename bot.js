@@ -16,6 +16,9 @@ async function runBot() {
     apiKey: process.env.OPENAI_API_KEY
   });
 
+  console.log("🟢 Iniciando conexión con WhatsApp...");
+  console.log("📷 Esperando escaneo del código QR...");
+
   const sock = makeWASocket({
     logger: Pino({ level: 'silent' }),
     printQRInTerminal: true,
