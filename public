@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="10" />
+  <title>Escaneá tu QR</title>
+</head>
+<body style="text-align:center;">
+  <h2>📱 Escaneá tu QR de WhatsApp</h2>
+  <img src="qr.png" width="300" alt="QR de WhatsApp" />
+  <p>Esta página se actualiza automáticamente cada 10 segundos.</p>
+</body>
+</html>
