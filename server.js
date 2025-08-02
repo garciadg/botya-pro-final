@@ -1,8 +1,11 @@
 const express = require('express');
+const path = require('path');
 const app = express();
 
+app.use(express.static('public'));
+
 app.get('/', (req, res) => {
-  res.send('✅ BotYa Demo GPT está corriendo correctamente.');
+  res.sendFile(path.join(__dirname, 'public', 'qr.html'));
 });
 
 const PORT = process.env.PORT || 8080;
@@ -16,4 +19,3 @@ try {
 } catch (err) {
   console.error('❌ Error al iniciar el bot de WhatsApp:', err);
 }
-
